@@ -1,0 +1,23 @@
+{
+  "name": "nintendo-3ds-proxy",
+  "version": "1.0.0",
+  "description": "CORS proxy with auto-token fetching for Nintendo 3DS Home Menu",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "proxy",
+    "cors",
+    "learnnatively"
+  ],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "puppeteer": "^24.30.0"
+  }
+}
