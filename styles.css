@@ -1,0 +1,34 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #1e3a5f 0%, #2d5a7b 100%);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.console-container {
+    background: #2a2a2a;
+    padding: 20px;
+    border-radius: 4px;
+}
+
+.screen-container {
+    background: #1a1a1a;
+    padding: 12px;
+    border-radius: 2px;
+}
+
+canvas {
+    display: block;
+    border: 2px solid #0a0a0a;
+    border-radius: 0;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+}
