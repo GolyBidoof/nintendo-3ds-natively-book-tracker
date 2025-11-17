@@ -29,6 +29,16 @@ Authentication tokens are hardcoded in `server.js` (lines 6-7). These expire mon
 2. Update `SESSION_TOKEN` and `CSRF_TOKEN` in `server.js`
 3. Redeploy to Railway
 
+## Cache Fallback
+
+If the Railway backend fails or you stop paying, the site falls back to cached JSON files (`stats.json` and `library.json`). Update the cache by running:
+
+```bash
+./update-cache.sh
+```
+
+This will work as long as Railway is still running. Once Railway shuts down, you can manually update the JSON files with your latest reading data.
+
 ## Local Development
 
 ```bash
