@@ -2,7 +2,6 @@ const http = require('http');
 const https = require('https');
 
 const PORT = process.env.PORT || 3000;
-
 const SESSION_TOKEN = '9qf7n7iu7hq984r1p1ossq7ho1yxmb5z';
 const CSRF_TOKEN = 'u3dny7Go64ifDqxjho7sNQL0mXqWEQ5U9drRv8RMeYLwyoUJNiqDVErxhHR5u9mx';
 
@@ -11,16 +10,11 @@ const server = http.createServer(async (req, res) => {
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   
-  if (req.method === 'OPTIONS') {
-    res.writeHead(200);
-    res.end();
-    return;
-  }
+  if (req.method === 'OPTIONS') return res.writeHead(200) && res.end();
 
   if (req.method === 'GET' && req.url === '/health') {
     res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ status: 'ok' }));
-    return;
+    return res.end(JSON.stringify({ status: 'ok' }));
   }
 
   if (req.method === 'POST' && req.url === '/api/proxy') {
@@ -37,7 +31,6 @@ const server = http.createServer(async (req, res) => {
         let options;
         if (endpoint === 'stats') {
           const year = requestBody?.year || new Date().getFullYear();
-          
           options = {
             hostname: 'learnnatively.com',
             path: `/profile-activity-api/GolyBidoof/?time_filter=${year}&stats_type=books`,
@@ -81,16 +74,16 @@ const server = http.createServer(async (req, res) => {
 
         proxyReq.on('error', () => {
           res.writeHead(500, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ error: 'Request failed' }));
+          res.end(JSON.stringify({ error: 'failed' }));
         });
 
         if (options.method === 'POST') {
           proxyReq.write(JSON.stringify(requestBody));
         }
         proxyReq.end();
-      } catch (error) {
+      } catch (e) {
         res.writeHead(500, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ error: 'Server error' }));
+        res.end(JSON.stringify({ error: 'error' }));
       }
     });
     return;

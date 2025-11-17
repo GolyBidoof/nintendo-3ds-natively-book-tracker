@@ -5,13 +5,9 @@ ctx.imageSmoothingQuality = 'high';
 
 const resizeCanvas = () => {
     const padding = 100;
-    const availableWidth = window.innerWidth - padding;
-    const availableHeight = window.innerHeight - padding;
-    
-    const scaleX = Math.floor(availableWidth / 400);
-    const scaleY = Math.floor(availableHeight / 240);
-    const scale = Math.max(1, Math.min(scaleX, scaleY));
-    
+    const w = window.innerWidth - padding;
+    const h = window.innerHeight - padding;
+    const scale = Math.max(1, Math.min(Math.floor(w / 400), Math.floor(h / 240)));
     canvas.style.width = (400 * scale) + 'px';
     canvas.style.height = (240 * scale) + 'px';
 };
@@ -63,30 +59,27 @@ const drawRoundedRect = (ctx, { x, y, width, height, radius = 6, fill, stroke, s
     }
 };
 
-const drawGlassPanel = (ctx, { x, y, width, height, radius = 6, fill = 'rgba(255, 255, 255, 0.12)', stroke = 'rgba(255, 255, 255, 0.3)', strokeWidth = 1 }) => {
-    drawRoundedRect(ctx, { x, y, width, height, radius, fill, stroke, strokeWidth });
-};
+const drawGlassPanel = (ctx, { x, y, width, height, radius = 6, fill = 'rgba(255, 255, 255, 0.12)', stroke = 'rgba(255, 255, 255, 0.3)', strokeWidth = 1 }) => drawRoundedRect(ctx, { x, y, width, height, radius, fill, stroke, strokeWidth });
 
 const drawText = (ctx, { text, x, y, font, color = COLORS.text, align = 'left', baseline = 'alphabetic' }) => {
-    const savedFont = ctx.font;
-    const savedFill = ctx.fillStyle;
-    const savedAlign = ctx.textAlign;
-    const savedBaseline = ctx.textBaseline;
-    const savedSmoothing = ctx.imageSmoothingEnabled;
-    
+    const saved = {
+        font: ctx.font,
+        fill: ctx.fillStyle,
+        align: ctx.textAlign,
+        baseline: ctx.textBaseline,
+        smooth: ctx.imageSmoothingEnabled
+    };
     ctx.imageSmoothingEnabled = false;
     ctx.font = font;
     ctx.fillStyle = color;
     ctx.textAlign = align;
     ctx.textBaseline = baseline;
-    
     ctx.fillText(text, Math.round(x), Math.round(y));
-    
-    ctx.font = savedFont;
-    ctx.fillStyle = savedFill;
-    ctx.textAlign = savedAlign;
-    ctx.textBaseline = savedBaseline;
-    ctx.imageSmoothingEnabled = savedSmoothing;
+    ctx.font = saved.font;
+    ctx.fillStyle = saved.fill;
+    ctx.textAlign = saved.align;
+    ctx.textBaseline = saved.baseline;
+    ctx.imageSmoothingEnabled = saved.smooth;
 };
 
 let libraryApps = [];
@@ -1046,17 +1039,14 @@ const fetchReadingStats = async () => {
                 body: { year: new Date().getFullYear() }
             })
         });
-        
         if (response.ok) {
             const data = await response.json();
-            if (data.totalPagesRead !== undefined) {
-                totalPagesRead = data.totalPagesRead;
-            }
+            if (data.totalPagesRead !== undefined) totalPagesRead = data.totalPagesRead;
             usingFallback = false;
         }
-    } catch (error) {
-        const fallbackResponse = await fetch('stats.json');
-        const data = await fallbackResponse.json();
+    } catch (e) {
+        const fb = await fetch('stats.json');
+        const data = await fb.json();
         totalPagesRead = data.totalPagesRead || 0;
         usingFallback = true;
     }
@@ -1164,9 +1154,9 @@ const fetchLibraryData = async () => {
         
         isLoading = false;
         usingFallback = false;
-    } catch (error) {
-        const fallbackResponse = await fetch('library.json');
-        const data = await fallbackResponse.json();
+    } catch (e) {
+        const fb = await fetch('library.json');
+        const data = await fb.json();
         
         if (data.results && data.results.length > 0) {
             const rawApps = data.results.map(result => ({
