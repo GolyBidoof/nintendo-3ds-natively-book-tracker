@@ -1050,7 +1050,9 @@ const fetchReadingStats = async () => {
             }
         }
     } catch (error) {
-        throw new Error(`Failed to fetch reading stats: ${error.message}`);
+        const fallbackResponse = await fetch('stats.json');
+        const data = await fallbackResponse.json();
+        totalPagesRead = data.totalPagesRead || 0;
     }
 };
 
@@ -1156,10 +1158,88 @@ const fetchLibraryData = async () => {
         
         isLoading = false;
     } catch (error) {
-        libraryApps = [];
+        const fallbackResponse = await fetch('library.json');
+        const data = await fallbackResponse.json();
+        
+        if (data.results && data.results.length > 0) {
+            const rawApps = data.results.map(result => ({
+                name: result.item?.title || 'Unknown',
+                seriesTitle: result.item?.seriesTitle || '',
+                imageUrl: result.item?.image?.url || null,
+                level: result.item?.rating?.lvl || null,
+                status: result.statusDisplay || 'Unknown',
+                dateStarted: result.dateStartedData?.display || null,
+                dateFinished: result.dateFinishedData?.display || null,
+                dateFinishedTimestamp: result.dateFinishedData?.timestampDate || 0,
+                pageCount: result.item?.pageCount || null,
+                author: result.item?.author || null,
+                mediaType: result.item?.mediaTypeDisplay || null,
+                rating: result.review?.rating || null,
+                entertainmentRating: result.review?.entertainmentRating || null,
+                languageLearningRating: result.review?.languageLearningRating || null,
+                id: result.item?.id || Math.random()
+            }));
+            
+            const seriesMap = {};
+            rawApps.forEach(app => {
+                const seriesName = app.seriesTitle || app.name.replace(/\s*[(\uff08]\d+[)\uff09]\s*$/, '').replace(/\s*\d+\s*$/, '').trim();
+                
+                if (!seriesMap[seriesName]) {
+                    seriesMap[seriesName] = {
+                        ...app,
+                        name: seriesName,
+                        volumes: [],
+                        volumeImages: []
+                    };
+                }
+                
+                const volumeMatch = app.name.match(/(\d+)[)\uff09]?\s*$/);
+                const volumeNumber = volumeMatch ? parseInt(volumeMatch[1]) : seriesMap[seriesName].volumes.length + 1;
+                
+                seriesMap[seriesName].volumes.push({
+                    volumeName: app.name,
+                    volumeNumber: volumeNumber,
+                    dateFinished: app.dateFinished,
+                    dateFinishedTimestamp: app.dateFinishedTimestamp,
+                    dateStarted: app.dateStarted,
+                    status: app.status,
+                    rating: app.rating,
+                    pageCount: app.pageCount,
+                    imageId: app.id,
+                    imageUrl: app.imageUrl
+                });
+                
+                seriesMap[seriesName].volumeImages.push({
+                    id: app.id,
+                    url: app.imageUrl
+                });
+                
+                if (app.dateFinishedTimestamp > seriesMap[seriesName].dateFinishedTimestamp) {
+                    seriesMap[seriesName].dateFinishedTimestamp = app.dateFinishedTimestamp;
+                    seriesMap[seriesName].dateFinished = app.dateFinished;
+                }
+            });
+            
+            libraryApps = Object.values(seriesMap);
+            
+            libraryApps.forEach(app => {
+                if (app.volumes && app.volumes.length > 1) {
+                    app.volumes.sort((a, b) => {
+                        if (a.volumeNumber !== b.volumeNumber) {
+                            return a.volumeNumber - b.volumeNumber;
+                        }
+                        return b.dateFinishedTimestamp - a.dateFinishedTimestamp;
+                    });
+                }
+            });
+            
+            libraryApps.sort((a, b) => b.dateFinishedTimestamp - a.dateFinishedTimestamp);
+            
+            totalPageCount = libraryApps.length;
+            await preloadImages();
+        }
+        
         isLoading = false;
-        hasError = true;
-        errorMessage = `Failed to load data: ${error.message}`;
     }
 };
 
