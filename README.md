@@ -31,13 +31,7 @@ Authentication tokens are hardcoded in `server.js` (lines 6-7). These expire mon
 
 ## Cache Fallback
 
-If the Railway backend fails or you stop paying, the site falls back to cached JSON files (`stats.json` and `library.json`). Update the cache by running:
-
-```bash
-./update-cache.sh
-```
-
-This will work as long as Railway is still running. Once Railway shuts down, you can manually update the JSON files with your latest reading data.
+If Railway fails, the site falls back to cached JSON files (stats.json and library.json). A GitHub Actions workflow updates these daily. You can also run ./update-cache.sh manually.
 
 ## Local Development
 
@@ -45,4 +39,8 @@ This will work as long as Railway is still running. Once Railway shuts down, you
 node server.js
 ```
 
-The server runs on port 3000 and serves both the proxy endpoint and static files for local testing.
+The server runs on port 3000 and serves the proxy endpoint for local testing.
+
+## Attribution
+
+Development and debugging assisted by Claude Sonnet 4.5.
