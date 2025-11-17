@@ -96,6 +96,7 @@ let loadedImages = {};
 let isLoading = true;
 let hasError = false;
 let errorMessage = '';
+let usingFallback = false;
 let totalPagesRead = 0;
 let volumeListScrollPosition = 0;
 
@@ -359,14 +360,18 @@ const drawStatusBar = () => {
     
     const currentTime = new Date();
 
-    ctx.save();
-    ctx.globalAlpha = 1 - internetTextFadeProgress;
-    drawStatusBarPill(4, 76, 'rgba(100, 180, 255, 0.3)', drawWiFiIcon, 'Internet');
-    
-    ctx.globalAlpha = internetTextFadeProgress;
-    drawStatusBarPill(4, 76, 'rgba(100, 180, 255, 0.3)', drawWiFiIcon, 'GolyBidoof');
-    ctx.globalAlpha = 1;
-    ctx.restore();
+    if (usingFallback) {
+        drawStatusBarPill(4, 76, 'rgba(128, 128, 128, 0.3)', drawWiFiIcon, 'Enabled');
+    } else {
+        ctx.save();
+        ctx.globalAlpha = 1 - internetTextFadeProgress;
+        drawStatusBarPill(4, 76, 'rgba(100, 180, 255, 0.3)', drawWiFiIcon, 'Internet');
+        
+        ctx.globalAlpha = internetTextFadeProgress;
+        drawStatusBarPill(4, 76, 'rgba(100, 180, 255, 0.3)', drawWiFiIcon, 'GolyBidoof');
+        ctx.globalAlpha = 1;
+        ctx.restore();
+    }
 
     const totalSeries = libraryApps.length;
     const totalVolumes = libraryApps.reduce((sum, app) => sum + (app.volumes ? app.volumes.length : 1), 0);
@@ -1048,11 +1053,13 @@ const fetchReadingStats = async () => {
             if (data.totalPagesRead !== undefined) {
                 totalPagesRead = data.totalPagesRead;
             }
+            usingFallback = false;
         }
     } catch (error) {
         const fallbackResponse = await fetch('stats.json');
         const data = await fallbackResponse.json();
         totalPagesRead = data.totalPagesRead || 0;
+        usingFallback = true;
     }
 };
 
@@ -1157,6 +1164,7 @@ const fetchLibraryData = async () => {
         }
         
         isLoading = false;
+        usingFallback = false;
     } catch (error) {
         const fallbackResponse = await fetch('library.json');
         const data = await fallbackResponse.json();
@@ -1240,6 +1248,7 @@ const fetchLibraryData = async () => {
         }
         
         isLoading = false;
+        usingFallback = true;
     }
 };
 
