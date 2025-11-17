@@ -31,7 +31,7 @@ Authentication tokens are hardcoded in `server.js` (lines 6-7). These expire mon
 
 ## Cache Fallback
 
-If Railway fails, the site falls back to cached JSON files (stats.json and library.json). A GitHub Actions workflow updates these daily. You can also run ./update-cache.sh manually.
+If Railway fails, the site falls back to cached JSON files (stats.json and library.json). A GitHub Actions workflow updates these daily with validation to prevent overwriting good data with errors. The workflow auto-disables after 29 days when tokens expire. See WORKFLOW.txt to set it up. You can also run ./update-cache.sh manually.
 
 ## Local Development
 
