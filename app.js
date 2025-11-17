@@ -360,18 +360,17 @@ const drawStatusBar = () => {
     
     const currentTime = new Date();
 
-    if (usingFallback) {
-        drawStatusBarPill(4, 76, 'rgba(128, 128, 128, 0.3)', drawWiFiIcon, 'Enabled');
-    } else {
-        ctx.save();
-        ctx.globalAlpha = 1 - internetTextFadeProgress;
-        drawStatusBarPill(4, 76, 'rgba(100, 180, 255, 0.3)', drawWiFiIcon, 'Internet');
-        
-        ctx.globalAlpha = internetTextFadeProgress;
-        drawStatusBarPill(4, 76, 'rgba(100, 180, 255, 0.3)', drawWiFiIcon, 'GolyBidoof');
-        ctx.globalAlpha = 1;
-        ctx.restore();
-    }
+    const bgColor = usingFallback ? 'rgba(128, 128, 128, 0.3)' : 'rgba(100, 180, 255, 0.3)';
+    const firstText = usingFallback ? 'Enabled' : 'Internet';
+    
+    ctx.save();
+    ctx.globalAlpha = 1 - internetTextFadeProgress;
+    drawStatusBarPill(4, 76, bgColor, drawWiFiIcon, firstText);
+    
+    ctx.globalAlpha = internetTextFadeProgress;
+    drawStatusBarPill(4, 76, bgColor, drawWiFiIcon, 'GolyBidoof');
+    ctx.globalAlpha = 1;
+    ctx.restore();
 
     const totalSeries = libraryApps.length;
     const totalVolumes = libraryApps.reduce((sum, app) => sum + (app.volumes ? app.volumes.length : 1), 0);
@@ -386,7 +385,7 @@ const drawStatusBar = () => {
     ctx.restore();
 
     if (totalPagesRead > 0) {
-        const formattedPages = totalPagesRead >= 10000 ? `${Math.floor(totalPagesRead/1000)}K` : totalPagesRead.toLocaleString();
+        const formattedPages = totalPagesRead.toLocaleString();
         drawStatusBarPill(158, 56, 'rgba(150, 255, 150, 0.3)', (x, y) => drawPageIcon(x, y - 1), formattedPages);
     }
 
