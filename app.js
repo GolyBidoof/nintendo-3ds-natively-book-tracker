@@ -1542,15 +1542,15 @@ const drawPageIndicator = () => {
         ctx.restore();
     }
 };
-const API_BASE =
+const PROXY_URL =
     window.location.hostname === "localhost" ||
         window.location.hostname === "127.0.0.1" ||
         window.location.protocol === "file:"
-        ? "http://localhost:3000"
-        : "https://scintillating-charisma-production.up.railway.app";
+        ? "http://localhost:3000/api/proxy"
+        : "https://scintillating-charisma-production.up.railway.app/api/proxy";
 const fetchReadingStats = async () => {
     try {
-        const response = await fetch(`${API_BASE}/api/proxy`, {
+        const response = await fetch(PROXY_URL, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -1566,7 +1566,7 @@ const fetchReadingStats = async () => {
             isConnected = true;
         }
     } catch (e) {
-        const fb = await fetch(`${API_BASE}/stats.json`);
+        const fb = await fetch("stats.json");
         const data = await fb.json();
         totalPagesRead = data.totalPagesRead || 0;
         usingFallback = true;
@@ -1703,7 +1703,7 @@ const sortLibrary = () => {
 };
 const fetchLibraryData = async () => {
     try {
-        const response = await fetch(`${API_BASE}/api/proxy`, {
+        const response = await fetch(PROXY_URL, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -1727,7 +1727,7 @@ const fetchLibraryData = async () => {
         usingFallback = false;
         isConnected = true;
     } catch (e) {
-        const fb = await fetch(`${API_BASE}/library.json`);
+        const fb = await fetch("library.json");
         const data = await fb.json();
         if (data.results && data.results.length > 0) {
             await processLibraryResults(data.results);
